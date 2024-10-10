@@ -1,0 +1,155 @@
+﻿@{
+    ViewData["Title"] = "Login";
+}
+@model ChatbotManagement.Models.VM.LoginVM
+<head>
+    <style>
+        body,
+        html {
+            height: 100%;
+            background-size: cover;
+        }
+
+        h1 {
+            color: #444444;
+            font-family: "Source Sans Pro";
+        }
+
+        .background-radial-gradient {
+            background-color: hsl(218, 41%, 15%);
+            background-image: radial-gradient(650px circle at 0% 0%, hsl(218, 41%, 35%) 15%, hsl(218, 41%, 30%) 35%, hsl(218, 41%, 20%) 75%, hsl(218, 41%, 19%) 80%, transparent 100%), radial-gradient(1250px circle at 100% 100%, hsl(218, 41%, 45%) 15%, hsl(218, 41%, 30%) 35%, hsl(218, 41%, 20%) 75%, hsl(218, 41%, 19%) 80%, transparent 100%);
+        }
+
+        #radius-shape-1 {
+            height: 220px;
+            width: 220px;
+            top: -60px;
+            left: -130px;
+            background: radial-gradient(#44006b, #ad1fff);
+            overflow: hidden;
+        }
+
+        #radius-shape-2 {
+            border-radius: 38% 62% 63% 37% / 70% 33% 67% 30%;
+            bottom: -60px;
+            right: -110px;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(#44006b, #ad1fff);
+            overflow: hidden;
+        }
+
+        .bg-glass {
+            background-color: hsla(0, 0%, 100%, 0.9) !important;
+            backdrop-filter: saturate(200%) blur(25px);
+        }
+    </style>
+    <script>
+        async function login() {
+            // Prevent form submission
+            event.preventDefault();
+
+            var form = document.getElementById("loginForm");
+            var formData = new FormData(form);
+
+            var jsonObject = {};
+            formData.forEach((value, key) => {
+                jsonObject[key] = value;
+            });
+            console.log(JSON.stringify(jsonObject));
+            try {
+                const response = await fetch("/Login/LoginManagement", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(jsonObject),
+                });
+
+                if (response.status === 302 || response.ok) {
+                    // Login successful, redirect to the Dashboard main page
+                    window.location.href = "https://localhost:8081/Dashboard/Index";
+                } else {
+                    console.error("Failed to add user.");
+                }
+            } catch (error) {
+                console.error("Error adding user:", error);
+            }
+        }
+    </script>
+</head>
+
+<body class="background-radial-gradient overflow-hidden">
+    <div class="container px-4 py-5 px-md-5 text-center text-lg-start">
+        <div class="row gx-lg-5 align-items-center ">
+            <div class="col-lg-6 mb-5 mb-lg-0" style="z-index: 10">
+                <h1 class="my-5 display-5 fw-bold" style="color: hsl(218, 81%, 95%)">
+                    The best offer <br />
+                    <span style="color: hsl(218, 81%, 75%)">for suggestions</span>
+                    <span style="color:hsl(265, 81%, 85%)"><br><br>IDEAMATE</span>
+                </h1>
+                <p class="mb-4 opacity-70" style="color: hsl(218, 81%, 85%)">
+                    &emsp;I'm here to assist you in finding the files you need quickly and efficiently.
+                    Simply tell me what you're searching for, and I'll use my algorithm to suggest relevant files based
+                    on your input.<br><br>
+                    &emsp;I'll do my best to provide you with the most appropriate suggestions.
+                    Please keep in mind that I don't store or retrieve actual files, but I'm an expert at suggesting
+                    files based on your
+                    requirements and send you the link to it that is on my database.<br><br>
+                    &emsp;So, go ahead and let me know what files you're looking for, and I'll do my best to assist you in
+                    finding the perfect matches.<br><br>Happy searching!
+                </p>
+            </div>
+
+            <div class="col-lg-6 mb-5 mb-lg-0 position-relative">
+                <div id="radius-shape-1" class="position-absolute rounded-circle shadow-5-strong"></div>
+                <div id="radius-shape-2" class="position-absolute shadow-5-strong"></div>
+
+                <div class="card bg-glass">
+                    <h1 class="d-flex justify-content-center align-items-center">Login</h1>
+                    <div class="card-body px-4 py-5 px-md-5">
+                        <!-- Display validation errors -->
+                        @if (!ViewData.ModelState.IsValid)
+                        {
+                            <div class="alert alert-danger">
+                                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                                {
+                                    <p>@error.ErrorMessage</p>
+                                }
+                            </div>
+                        }
+                        <form id="loginForm">
+                            <!-- Email input -->
+                            <div class="form-outline mb-4">
+                                <input type="email" id="Email" name="Email" class="form-control" placeholder="Email address" />
+                            </div>
+
+                            <!-- Password input -->
+                            <div class="form-outline mb-4">
+                                <input type="password" id="Password" name="Password" class="form-control" placeholder="Password" />
+                            </div>
+
+                            <div class="row">
+                                <!-- Submit button -->
+                                <div class="col-md-6 mb-4">
+                                    <button type="submit" class="btn btn-primary btn-block" onclick="login()">
+                                        Sign In
+                                    </button>
+                                </div>
+                                <div class="col-md-6 mb-4 d-flex justify-content-end align-items-end">
+                                    <a href="@Url.Action("CreateAccountView", "Login")">Go to Sign Up</a>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="d-flex justify-content-center align-items-center mt-3">
+        @if (ViewData["SolrConnected"] != null && ViewData["SolrConnected"]!.Equals(false))
+        {
+            <h1 style="color:red;">Error connecting to Solr</h1>
+        }
+    </div>
+</body>

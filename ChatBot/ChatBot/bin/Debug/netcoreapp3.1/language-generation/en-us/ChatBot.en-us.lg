@@ -1,0 +1,56 @@
+[import](common.lg)
+
+# SendActivity_DidNotUnderstand()
+[Activity
+    Text = ${SendActivity_DidNotUnderstand_text()}
+]
+
+# SendActivity_DidNotUnderstand_text()
+- Sorry, I didn't get that.
+# TextInput_Prompt_IrOpom()
+[Activity
+    Text = ${TextInput_Prompt_IrOpom_text()}
+]
+
+# TextInput_Prompt_IrOpom_text()
+- Hello there!
+# TextInput_Prompt_XnQoxz()
+[Activity
+    Text = ${TextInput_Prompt_XnQoxz_text()}
+]
+
+# TextInput_Prompt_XnQoxz_text()
+- Please tell me keywords of the file you are searching for in order for me to look for it. Separat them by commas Like: "ESTG, PC".
+# SendActivity_Wi8UJe()
+[Activity
+    Text = ${SendActivity_Wi8UJe_text()}
+]
+
+# SendActivity_Wi8UJe_text()
+- ${dialog.foreach.value.link}
+# TextInput_Prompt_Xjm5OS()
+[Activity
+    Text = ${TextInput_Prompt_Xjm5OS_text()}
+]
+
+# TextInput_Prompt_Xjm5OS_text()
+- Was it helpfull?
+# SendActivity_Jtnwvs()
+[Activity
+    Text = ${SendActivity_Jtnwvs_text()}
+]
+
+# SendActivity_Jtnwvs_text()
+- ```I apologise but I can't find any document that matches the keywords inputed...
+Try later maybe a file might be available by that time that matches the keywords inputed.
+
+Goodbye!```
+# SendActivity_NYzOKh()
+[Activity
+    Text = ${SendActivity_NYzOKh_text()}
+]
+
+# SendActivity_NYzOKh_text()
+- ```I'm glad I found the file you were looking for ....
+
+Goodbye!```

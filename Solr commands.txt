@@ -1,0 +1,5 @@
+CMD on windows:
+
+docker run -d -p 8983:8983 --name my_solr solr:8.9 solr-precreate techproducts
+
+solr.cmd start

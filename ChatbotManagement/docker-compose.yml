@@ -1,0 +1,26 @@
+version: '3.4'
+
+services:
+  chatbotmanagement:
+    container_name: "ChatbotManagement"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+        - "8080:80"
+    depends_on:
+        - ChatbotmanagementDB
+
+  ChatbotmanagementDB:
+    #image: "mcr.microsoft.com/mssql/server:2022-latest"
+    image: "rmcc0951/pf_db"
+    container_name: "ChatbotManagementDB"
+    ports:
+        - "1433:1433"
+    environment:
+        ACCEPT_EULA: "Y"
+        SA_PASSWORD: "Database!2023"
+    volumes:
+        - db-volume:/var/lib/mysql
+volumes:
+  db-volume: {}

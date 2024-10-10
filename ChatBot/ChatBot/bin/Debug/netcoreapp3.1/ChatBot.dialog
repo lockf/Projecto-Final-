@@ -1,0 +1,249 @@
+{
+  "$kind": "Microsoft.AdaptiveDialog",
+  "$designer": {
+    "name": "ChatBot",
+    "description": "",
+    "id": "A79tBe"
+  },
+  "autoEndDialog": true,
+  "defaultResultProperty": "dialog.result",
+  "triggers": [
+    {
+      "$kind": "Microsoft.OnConversationUpdateActivity",
+      "$designer": {
+        "id": "376720",
+        "comment": "This trigger runs when a conversation update activity is sent to the bot. This indicates a user or bot being added or removed from a conversation."
+      },
+      "actions": [
+        {
+          "$kind": "Microsoft.Foreach",
+          "$designer": {
+            "id": "518944",
+            "name": "Loop: for each item",
+            "comment": "For each member added to the conversation."
+          },
+          "itemsProperty": "turn.Activity.membersAdded",
+          "actions": [
+            {
+              "$kind": "Microsoft.IfCondition",
+              "$designer": {
+                "id": "641773",
+                "name": "Branch: if/else",
+                "comment": "Checks that that member added ID does not match the bot ID. This prevents the greeting message from being sent when the bot is added to a conversation."
+              },
+              "condition": "=string(dialog.foreach.value.id) != string(turn.Activity.Recipient.id)",
+              "actions": [
+                {
+                  "$kind": "Microsoft.TextInput",
+                  "$designer": {
+                    "id": "IrOpom"
+                  },
+                  "disabled": false,
+                  "maxTurnCount": 3,
+                  "alwaysPrompt": false,
+                  "allowInterruptions": false,
+                  "prompt": "${TextInput_Prompt_IrOpom()}",
+                  "unrecognizedPrompt": "",
+                  "invalidPrompt": "",
+                  "defaultValueResponse": "",
+                  "property": "dialog.GreetingUser"
+                },
+                {
+                  "$kind": "Microsoft.HttpRequest",
+                  "$designer": {
+                    "id": "NxTqly",
+                    "comment": "Post Message of user to DB"
+                  },
+                  "resultProperty": "turn.results",
+                  "url": "https://localhost:8081/api/Message/createMessage",
+                  "method": "POST",
+                  "responseType": "json",
+                  "body": {
+                    "Text": "${dialog.GreetingUser}",
+                    "ChannelId": "${turn.Activity.channelId}",
+                    "ConversationId": "${turn.Activity.conversation.id}"
+                  }
+                }
+              ],
+              "elseActions": []
+            }
+          ],
+          "value": "dialog.foreach.value",
+          "index": "dialog.foreach.index"
+        },
+        {
+          "$kind": "Microsoft.TextInput",
+          "$designer": {
+            "id": "XnQoxz"
+          },
+          "disabled": false,
+          "maxTurnCount": 3,
+          "alwaysPrompt": false,
+          "allowInterruptions": false,
+          "unrecognizedPrompt": "",
+          "invalidPrompt": "",
+          "defaultValueResponse": "",
+          "prompt": "${TextInput_Prompt_XnQoxz()}",
+          "property": "dialog.keywords",
+          "outputFormat": "=toLower(this.value)"
+        },
+        {
+          "$kind": "Microsoft.HttpRequest",
+          "$designer": {
+            "id": "owz4z5",
+            "comment": "Post Message of user to DB"
+          },
+          "resultProperty": "turn.results",
+          "method": "POST",
+          "url": "https://localhost:8081/api/Message/createMessage",
+          "responseType": "json",
+          "body": {
+            "Text": "${dialog.GreetingUser}",
+            "ChannelId": "${turn.Activity.channelId}",
+            "ConversationId": "${turn.Activity.conversation.id}"
+          }
+        },
+        {
+          "$kind": "Microsoft.HttpRequest",
+          "$designer": {
+            "id": "TAfG6J",
+            "comment": "Get user suggestions"
+          },
+          "resultProperty": "dialog.suggestion",
+          "url": "https://localhost:8081/api/Solr/suggest?Keywords=${dialog.keywords}",
+          "method": "GET",
+          "responseType": "json",
+          "headers": {}
+        },
+        {
+          "$kind": "Microsoft.Foreach",
+          "$designer": {
+            "id": "HmI6S3",
+            "comment": "Para cada sugestão"
+          },
+          "index": "dialog.foreach.index",
+          "value": "dialog.foreach.value",
+          "actions": [
+            {
+              "$kind": "Microsoft.SendActivity",
+              "$designer": {
+                "id": "Wi8UJe"
+              },
+              "activity": "${SendActivity_Wi8UJe()}"
+            },
+            {
+              "$kind": "Microsoft.TextInput",
+              "$designer": {
+                "id": "Xjm5OS"
+              },
+              "disabled": false,
+              "maxTurnCount": 3,
+              "alwaysPrompt": false,
+              "allowInterruptions": false,
+              "unrecognizedPrompt": "",
+              "invalidPrompt": "",
+              "prompt": "${TextInput_Prompt_Xjm5OS()}",
+              "property": "dialog.feedbackResp",
+              "outputFormat": "=toLower(this.value)"
+            },
+            {
+              "$kind": "Microsoft.HttpRequest",
+              "$designer": {
+                "id": "4uNX99",
+                "comment": "Post feedback and Message\n\n1st - Get File Id\n\n2nd - Post Message\n\n3rd - Post Feedback"
+              },
+              "resultProperty": "dialog.feedbackPost",
+              "url": "https://localhost:8081/api/Message/createMessageAndFeedback",
+              "method": "POST",
+              "responseType": "json",
+              "headers": {},
+              "body": {
+                "Message3VM": {
+                  "Text": "${dialog.feedbackResp}",
+                  "ChannelId": "${turn.Activity.channelId}",
+                  "ConversationId": "${turn.Activity.conversation.id}"
+                },
+                "Feedback2VM": {
+                  "Opinion": "${dialog.feedbackResp}",
+                  "FileId": "${dialog.foreach.value.id}"
+                }
+              }
+            },
+            {
+              "$kind": "Microsoft.IfCondition",
+              "$designer": {
+                "id": "1XzbCH"
+              },
+              "actions": [
+                {
+                  "$kind": "Microsoft.BreakLoop",
+                  "$designer": {
+                    "id": "p6jGQT"
+                  }
+                }
+              ],
+              "condition": "=dialog.feedbackPost.content.error.code == string(Positive)",
+              "elseActions": []
+            }
+          ],
+          "itemsProperty": "dialog.suggestion.content"
+        },
+        {
+          "$kind": "Microsoft.IfCondition",
+          "$designer": {
+            "id": "4hfkBO"
+          },
+          "condition": "=dialog.feedbackPost.content.error.code == string(Negative) || dialog.feedbackPost.content.error.code == string(Neutral)",
+          "actions": [
+            {
+              "$kind": "Microsoft.SendActivity",
+              "$designer": {
+                "id": "Jtnwvs"
+              },
+              "activity": "${SendActivity_Jtnwvs()}"
+            }
+          ],
+          "elseActions": [
+            {
+              "$kind": "Microsoft.SendActivity",
+              "$designer": {
+                "id": "NYzOKh"
+              },
+              "activity": "${SendActivity_NYzOKh()}"
+            }
+          ]
+        },
+        {
+          "$kind": "Microsoft.CancelDialog",
+          "$designer": {
+            "id": "GKHzax"
+          },
+          "activityProcessed": true
+        }
+      ]
+    },
+    {
+      "$kind": "Microsoft.OnUnknownIntent",
+      "$designer": {
+        "id": "mb2n1u",
+        "comment": "This trigger fires when an incoming activity is not handled by any other trigger."
+      },
+      "actions": [
+        {
+          "$kind": "Microsoft.SendActivity",
+          "$designer": {
+            "id": "kMjqz1",
+            "comment": "It is recommended to show a message to the user when the bot does not know how to handle an incoming activity and provide follow up options or a help message."
+          },
+          "activity": "${SendActivity_DidNotUnderstand()}"
+        }
+      ]
+    }
+  ],
+  "generator": "ChatBot.lg",
+  "id": "ChatBot",
+  "recognizer": {
+    "$kind": "Microsoft.RegexRecognizer",
+    "intents": []
+  }
+}
